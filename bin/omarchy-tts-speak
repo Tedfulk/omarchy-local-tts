@@ -1,0 +1,25 @@
+#!/bin/bash
+# omarchy-tts-speak - Speak highlighted text using local TTS server
+#
+# Usage: omarchy-tts-speak
+# Reads text from primary selection (highlighted text) and sends it to the TTS server.
+
+set -euo pipefail
+
+TTS_SERVER="http://127.0.0.1:5858"
+
+# Get highlighted text via primary selection
+text=$(wl-paste -p 2>/dev/null || true)
+
+if [ -z "$text" ]; then
+    notify-send "TTS" "No text selected" --expire-time=2000 2>/dev/null || true
+    exit 0
+fi
+
+# Escape text for JSON (handle quotes, backslashes, newlines)
+json_text=$(printf '%s' "$text" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')
+
+# Send to TTS server
+curl -s -X POST "${TTS_SERVER}/speak" \
+    -H "Content-Type: application/json" \
+    -d "{\"text\": $json_text}" >/dev/null 2>&1 &

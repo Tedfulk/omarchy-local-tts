@@ -1,0 +1,15 @@
+[project]
+name = "omarchy-local-tts-server"
+version = "0.1.0"
+description = "FastAPI server for local TTS with voice cloning using index-tts"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn>=0.30.0",
+    "pydantic>=2.0.0",
+    "gradio>=4.0.0",
+]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"

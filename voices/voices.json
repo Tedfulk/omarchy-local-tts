@@ -1,0 +1,94 @@
+{
+  "voices": [
+    {
+      "id": "alex",
+      "name": "Alex",
+      "description": "upbeat, energetic and clear",
+      "file": "alex.mp3"
+    },
+    {
+      "id": "allison",
+      "name": "Allison",
+      "description": "energetic, clear and bubbly",
+      "file": "allison.mp3"
+    },
+    {
+      "id": "christian_plasa",
+      "name": "Christian Plasa",
+      "description": "wise and commanding",
+      "file": "christian_plasa.mp3"
+    },
+    {
+      "id": "david_joel",
+      "name": "David Joel",
+      "description": "deep and engaging narrator",
+      "file": "david_joel.mp3"
+    },
+    {
+      "id": "dexter",
+      "name": "Dexter",
+      "description": "dynamic, bold and british",
+      "file": "dexter.mp3"
+    },
+    {
+      "id": "hale",
+      "name": "Hale",
+      "description": "smooth, confident and persuasive",
+      "file": "hale.mp3"
+    },
+    {
+      "id": "kal_jones",
+      "name": "Kal Jones",
+      "description": "deep, smokey and reliable",
+      "file": "kal_jones.mp3"
+    },
+    {
+      "id": "kristen",
+      "name": "Kristen",
+      "description": "natural, upbeat and focused",
+      "file": "kristen.mp3"
+    },
+    {
+      "id": "noku",
+      "name": "Noku",
+      "description": "heroic and confident protagonist",
+      "file": "noku.mp3"
+    },
+    {
+      "id": "oliver",
+      "name": "Oliver",
+      "description": "articulate, smooth and british",
+      "file": "oliver.mp3"
+    },
+    {
+      "id": "pete",
+      "name": "Pete",
+      "description": "engaging radio host",
+      "file": "pete.mp3"
+    },
+    {
+      "id": "rachelle",
+      "name": "Rachelle",
+      "description": "well-spoken, wise and clear",
+      "file": "rachelle.mp3"
+    },
+    {
+      "id": "sam",
+      "name": "Sam",
+      "description": "engaging game narrator",
+      "file": "sam.mp3"
+    },
+    {
+      "id": "sarah",
+      "name": "Sarah",
+      "description": "approachable and informative",
+      "file": "sarah.mp3"
+    },
+    {
+      "id": "sophia",
+      "name": "Sophia",
+      "description": "british, smooth and engaging",
+      "file": "sophia.mp3"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# index-tts subproject (external dependency)
+index-tts/
+
+# Voice files (large audio files)
+voices/*.mp3
+voices/*.wav
+
+# Keep voice metadata
+!voices/voices.json
+
+# Temp files
+*.tmp
+*.temp
+/tmp/
+
+# Accidentally created file
+=4.0.0
