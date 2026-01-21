@@ -20,15 +20,8 @@ ENV/
 *.swp
 *.swo
 
-# index-tts subproject (external dependency)
+# index-tts subproject (cloned during setup)
 index-tts/
-
-# Voice files (large audio files)
-voices/*.mp3
-voices/*.wav
-
-# Keep voice metadata
-!voices/voices.json
 
 # Temp files
 *.tmp

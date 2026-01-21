@@ -1,0 +1,16 @@
+#!/bin/bash
+# Waybar status script for Omarchy Local TTS
+# Returns JSON for waybar custom module
+
+PLAYING_FILE="/tmp/omarchy-tts-playing"
+PAUSED_FILE="/tmp/omarchy-tts-paused"
+
+if [[ -f "$PLAYING_FILE" ]]; then
+    if [[ -f "$PAUSED_FILE" ]]; then
+        echo '{"text": "󰏤", "class": "paused", "tooltip": "TTS Paused (click to resume, right-click to stop)"}'
+    else
+        echo '{"text": "󰔊", "class": "speaking", "tooltip": "TTS Speaking (click to pause, right-click to stop)"}'
+    fi
+else
+    echo '{"text": "", "class": "idle", "tooltip": "TTS Idle"}'
+fi

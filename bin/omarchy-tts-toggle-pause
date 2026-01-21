@@ -1,0 +1,4 @@
+#!/bin/bash
+# Toggle pause/resume for TTS playback
+
+curl -s -X POST http://127.0.0.1:5858/toggle-pause >/dev/null 2>&1
