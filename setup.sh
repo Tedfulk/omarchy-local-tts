@@ -81,6 +81,18 @@ cd index-tts
 uv pip install gradio fastapi uvicorn
 cd ..
 
+# Migrate config.json to ~/.config/omarchy-local-tts if it exists in root
+CONFIG_DIR="$HOME/.config/omarchy-local-tts"
+mkdir -p "$CONFIG_DIR"
+
+if [ -f "$SCRIPT_DIR/config.json" ]; then
+    echo ""
+    echo "=== Migrating config.json ==="
+    echo "Moving config.json to $CONFIG_DIR"
+    mv "$SCRIPT_DIR/config.json" "$CONFIG_DIR/config.json"
+    echo "  Config migrated successfully"
+fi
+
 # Create symlinks for bin scripts
 echo ""
 echo "=== Setting up command symlinks ==="

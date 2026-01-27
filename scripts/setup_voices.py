@@ -13,7 +13,8 @@ DOWNLOADS_DIR = Path.home() / "Downloads"
 PROJECT_ROOT = Path(__file__).parent.parent
 VOICES_DIR = PROJECT_ROOT / "voices"
 VOICES_JSON = VOICES_DIR / "voices.json"
-CONFIG_JSON = PROJECT_ROOT / "config.json"
+CONFIG_DIR = Path.home() / ".config" / "omarchy-local-tts"
+CONFIG_JSON = CONFIG_DIR / "config.json"
 
 
 def parse_voice_filename(filename: str) -> tuple[str, str]:
@@ -80,6 +81,7 @@ def main():
                 default_voice = "rachelle"
                 break
 
+        CONFIG_DIR.mkdir(parents=True, exist_ok=True)
         config = {"active_voice": default_voice}
         with open(CONFIG_JSON, "w") as f:
             json.dump(config, f, indent=2)

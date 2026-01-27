@@ -23,7 +23,8 @@ class VoiceWithStatus(VoiceInfo):
 PROJECT_ROOT = Path(__file__).parent.parent
 VOICES_DIR = PROJECT_ROOT / "voices"
 VOICES_JSON = VOICES_DIR / "voices.json"
-CONFIG_JSON = PROJECT_ROOT / "config.json"
+CONFIG_DIR = Path.home() / ".config" / "omarchy-local-tts"
+CONFIG_JSON = CONFIG_DIR / "config.json"
 
 
 class VoiceConfig:
@@ -55,6 +56,7 @@ class VoiceConfig:
 
     def _save_config(self):
         """Save active voice to config.json."""
+        CONFIG_DIR.mkdir(parents=True, exist_ok=True)
         with open(CONFIG_JSON, "w") as f:
             json.dump({"active_voice": self._active_voice}, f, indent=2)
 
