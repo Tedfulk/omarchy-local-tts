@@ -113,6 +113,34 @@ class VoiceConfig:
                 return voice
         return None
 
+    def delete_voice(self, voice_id: str) -> bool:
+        """Delete a voice by ID. Returns True if deleted, False if not found.
+
+        Raises ValueError if trying to delete the last remaining voice.
+        """
+        voice = self.get_voice(voice_id)
+        if voice is None:
+            return False
+
+        if len(self._voices) <= 1:
+            raise ValueError("Cannot delete the last remaining voice")
+
+        # Remove voice file
+        voice_file = VOICES_DIR / voice["file"]
+        if voice_file.exists():
+            voice_file.unlink()
+
+        # Remove from list
+        self._voices = [v for v in self._voices if v["id"] != voice_id]
+        self._save_voices()
+
+        # If deleted voice was active, switch to first remaining voice
+        if self._active_voice == voice_id:
+            self._active_voice = self._voices[0]["id"]
+            self._save_config()
+
+        return True
+
     def add_voice(self, file_path: Path, name: str, description: str = "") -> VoiceInfo:
         """Add a new voice from an uploaded file."""
         # Generate ID from name

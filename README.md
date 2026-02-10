@@ -50,6 +50,17 @@ bind = SUPER, D, exec, omarchy-tts-speak
 
 Then highlight any text and press the hotkey to hear it spoken.
 
+### Repeat Last Spoken Text
+
+Bind `omarchy-tts-repeat` to a hotkey (e.g., Super+Shift+D):
+
+**Hyprland** (`~/.config/hypr/bindings.conf`):
+```
+bind = SUPER SHIFT, D, exec, omarchy-tts-repeat
+```
+
+Press the hotkey to re-speak the last spoken text using the same voice.
+
 ### Web UI
 
 Open http://127.0.0.1:5858/ui to:
@@ -63,6 +74,7 @@ Open http://127.0.0.1:5858/ui to:
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/speak` | POST | Generate and play speech `{"text": "Hello world"}` |
+| `/repeat` | POST | Re-speak the last spoken text (same voice) |
 | `/stop` | POST | Stop playback immediately |
 | `/pause` | POST | Pause playback |
 | `/resume` | POST | Resume playback |
@@ -71,6 +83,7 @@ Open http://127.0.0.1:5858/ui to:
 | `/voices` | GET | List available voices |
 | `/voices/select/{id}` | POST | Set active voice |
 | `/voices/test` | POST | Test a voice `{"voice_id": "alex", "text": "Hello"}` |
+| `/history` | GET | Query command history (params: `days`, `voice_id`, `limit`, `offset`) |
 | `/health` | GET | Health check |
 
 Example:

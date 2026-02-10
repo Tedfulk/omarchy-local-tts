@@ -1,0 +1,4 @@
+#!/bin/bash
+# Repeat the last spoken TTS command
+
+curl -s -X POST http://127.0.0.1:5858/repeat >/dev/null 2>&1

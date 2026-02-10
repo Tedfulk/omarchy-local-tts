@@ -29,6 +29,7 @@ sys.path.insert(0, str(INDEX_TTS_PATH))
 sys.path.insert(0, str(PROJECT_ROOT))
 
 import server.config as config
+import server.db as db
 from server.config import voice_config
 
 from indextts.infer_v2 import IndexTTS2
@@ -105,6 +106,10 @@ async def lifespan(app: FastAPI):
             print(f"Model loaded on device: {tts_model.device}")
 
         print("TTS model ready!")
+
+    # Initialize command history database
+    db.init_db()
+    print("Command history database ready.")
 
     yield
 
@@ -279,7 +284,7 @@ from concurrent.futures import ThreadPoolExecutor
 _tts_executor = ThreadPoolExecutor(max_workers=1)
 
 
-def _run_speak(text: str, voice_file: Path) -> dict:
+def _run_speak(text: str, voice_file: Path, voice_id: str, voice_name: str) -> dict:
     """Run the TTS generation and playback synchronously."""
     global tts_model, _stop_requested
 
@@ -379,6 +384,18 @@ def _run_speak(text: str, voice_file: Path) -> dict:
     if generation_error:
         raise generation_error[0]
 
+    # Log to command history
+    try:
+        db.log_command(
+            text=text,
+            voice_id=voice_id,
+            voice_name=voice_name,
+            char_count=len(text),
+            chunk_count=len(chunks),
+        )
+    except Exception as e:
+        print(f"Warning: failed to log command history: {e}")
+
     return {"status": "success", "text": text, "chunks": len(chunks)}
 
 
@@ -414,6 +431,11 @@ async def speak(request: SpeakRequest):
             detail=f"Voice file not found: {voice_file}"
         )
 
+    # Resolve active voice info for history logging
+    active_id = voice_config.get_active_voice_id()
+    voice_info = voice_config.get_voice(active_id)
+    active_name = voice_info["name"] if voice_info else active_id
+
     # Run TTS in thread pool to not block the event loop
     loop = asyncio.get_event_loop()
     try:
@@ -421,7 +443,9 @@ async def speak(request: SpeakRequest):
             _tts_executor,
             _run_speak,
             request.text.strip(),
-            voice_file
+            voice_file,
+            active_id,
+            active_name,
         )
         return result
     except Exception as e:
@@ -498,6 +522,72 @@ async def get_status():
     }
 
 
+@app.post("/repeat")
+async def repeat_last():
+    """Re-speak the most recent command from history using its original voice."""
+    global tts_model, _stop_requested, _paused
+
+    # Reset stop and pause flags at start of new speech
+    with _stop_lock:
+        _stop_requested = False
+    with _pause_lock:
+        _paused = False
+
+    if tts_model is None:
+        raise HTTPException(
+            status_code=503,
+            detail="TTS model not loaded. Check server logs for errors."
+        )
+
+    last = db.get_last_command()
+    if last is None:
+        raise HTTPException(status_code=404, detail="No command history found")
+
+    # Try to use the original voice; fall back to active voice if it no longer exists
+    voice_id = last["voice_id"]
+    voice_name = last["voice_name"]
+    try:
+        voice_file = voice_config.get_voice_path(voice_id)
+        if not voice_file.exists():
+            raise ValueError("file missing")
+    except (ValueError, KeyError):
+        voice_file = voice_config.get_active_voice_path()
+        voice_id = voice_config.get_active_voice_id()
+        voice_info = voice_config.get_voice(voice_id)
+        voice_name = voice_info["name"] if voice_info else voice_id
+
+    if not voice_file.exists():
+        raise HTTPException(
+            status_code=500,
+            detail=f"Voice file not found: {voice_file}"
+        )
+
+    loop = asyncio.get_event_loop()
+    try:
+        result = await loop.run_in_executor(
+            _tts_executor,
+            _run_speak,
+            last["text"],
+            voice_file,
+            voice_id,
+            voice_name,
+        )
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/history")
+async def get_history(
+    days: int = 30,
+    voice_id: str | None = None,
+    limit: int = 100,
+    offset: int = 0,
+):
+    """Query command history with optional filters."""
+    return db.get_history(days=days, voice_id=voice_id, limit=limit, offset=offset)
+
+
 @app.get("/voices", response_model=list[VoiceResponse])
 async def list_voices():
     """List all available voices."""
@@ -510,6 +600,17 @@ async def select_voice(voice_id: str):
     if voice_config.set_active_voice(voice_id):
         return {"status": "success", "active_voice": voice_id}
     raise HTTPException(status_code=404, detail=f"Voice not found: {voice_id}")
+
+
+@app.delete("/voices/{voice_id}")
+async def delete_voice(voice_id: str):
+    """Delete a voice by ID."""
+    try:
+        if voice_config.delete_voice(voice_id):
+            return {"status": "success", "deleted": voice_id}
+        raise HTTPException(status_code=404, detail=f"Voice not found: {voice_id}")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @app.post("/voices/test")

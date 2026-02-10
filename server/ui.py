@@ -83,6 +83,26 @@ def create_ui(tts_model=None):
         except Exception as e:
             return None, f"Error: {str(e)}"
 
+    def delete_selected_voice(voice_id: str) -> tuple[str, dict, str | None]:
+        """Delete the selected voice."""
+        if not voice_id:
+            return "Please select a voice first.", gr.update(), None
+        try:
+            voice = voice_config.get_voice(voice_id)
+            name = voice["name"] if voice else voice_id
+            voice_config.delete_voice(voice_id)
+            new_choices = get_voice_choices()
+            new_active = get_active_voice_id()
+            return (
+                f"Voice '{name}' deleted.",
+                gr.update(choices=new_choices, value=new_active),
+                get_voice_preview_path(new_active),
+            )
+        except ValueError as e:
+            return str(e), gr.update(), None
+        except Exception as e:
+            return f"Error deleting voice: {str(e)}", gr.update(), None
+
     def add_new_voice(file, name: str, description: str) -> tuple[str, dict]:
         """Add a new voice from uploaded file."""
         if file is None:
@@ -116,7 +136,9 @@ def create_ui(tts_model=None):
                     interactive=True,
                 )
 
-                set_default_btn = gr.Button("Set as Default", variant="secondary")
+                with gr.Row():
+                    set_default_btn = gr.Button("Set as Default", variant="secondary")
+                    delete_voice_btn = gr.Button("Delete Voice", variant="stop")
                 status_text = gr.Textbox(label="Status", interactive=False)
 
                 gr.Markdown("### Test Voice")
@@ -173,6 +195,12 @@ def create_ui(tts_model=None):
             fn=test_voice,
             inputs=[voice_dropdown, test_input],
             outputs=[test_output, status_text],
+        )
+
+        delete_voice_btn.click(
+            fn=delete_selected_voice,
+            inputs=[voice_dropdown],
+            outputs=[status_text, voice_dropdown, preview_audio],
         )
 
         add_voice_btn.click(

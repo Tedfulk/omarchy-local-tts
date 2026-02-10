@@ -89,6 +89,42 @@
       "name": "Sophia",
       "description": "british, smooth and engaging",
       "file": "sophia.mp3"
+    },
+    {
+      "id": "trump",
+      "name": "Trump",
+      "description": "bold, commanding and distinctive",
+      "file": "trump.mp3"
+    },
+    {
+      "id": "bluey",
+      "name": "Bluey",
+      "description": "playful, energetic and australian",
+      "file": "bluey.mp3"
+    },
+    {
+      "id": "zombieland_james",
+      "name": "Zombieland James",
+      "description": "witty, nervous and endearing",
+      "file": "zombieland_james.mp3"
+    },
+    {
+      "id": "snickers",
+      "name": "Snickers",
+      "description": "fun, punchy and humorous",
+      "file": "snickers.mp3"
+    },
+    {
+      "id": "bandit",
+      "name": "Bandit",
+      "description": "warm, playful and australian",
+      "file": "bandit.mp3"
+    },
+    {
+      "id": "michael_cain",
+      "name": "Michael Cain",
+      "description": "distinguished, smooth and british",
+      "file": "michael_cain.mp3"
     }
   ]
 }
