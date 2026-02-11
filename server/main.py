@@ -45,6 +45,7 @@ tts_model: IndexTTS2 | None = None
 
 class SpeakRequest(BaseModel):
     text: str
+    speed: float = 1.0
 
 
 class TestVoiceRequest(BaseModel):
@@ -284,7 +285,26 @@ from concurrent.futures import ThreadPoolExecutor
 _tts_executor = ThreadPoolExecutor(max_workers=1)
 
 
-def _run_speak(text: str, voice_file: Path, voice_id: str, voice_name: str) -> dict:
+def _apply_speed(audio_path: str, speed: float) -> str:
+    """Apply tempo change to a WAV file using ffmpeg. Returns path to the new file."""
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+        out_path = tmp.name
+    try:
+        subprocess.run(
+            ["ffmpeg", "-y", "-i", audio_path, "-filter:a", f"atempo={speed}", out_path],
+            capture_output=True,
+            timeout=30,
+        )
+        os.unlink(audio_path)
+        return out_path
+    except Exception:
+        # If ffmpeg fails, fall back to original file
+        if os.path.exists(out_path):
+            os.unlink(out_path)
+        return audio_path
+
+
+def _run_speak(text: str, voice_file: Path, voice_id: str, voice_name: str, speed: float = 1.0) -> dict:
     """Run the TTS generation and playback synchronously."""
     global tts_model, _stop_requested
 
@@ -322,6 +342,10 @@ def _run_speak(text: str, voice_file: Path, voice_id: str, voice_name: str) -> d
                         if os.path.exists(tmp_path):
                             os.unlink(tmp_path)
                         break
+
+                # Apply speed adjustment if needed
+                if speed != 1.0:
+                    tmp_path = _apply_speed(tmp_path, speed)
 
                 audio_queue.put(tmp_path)
         except Exception as e:
@@ -436,6 +460,9 @@ async def speak(request: SpeakRequest):
     voice_info = voice_config.get_voice(active_id)
     active_name = voice_info["name"] if voice_info else active_id
 
+    # Clamp speed to valid range
+    speed = max(1.0, min(2.0, request.speed))
+
     # Run TTS in thread pool to not block the event loop
     loop = asyncio.get_event_loop()
     try:
@@ -446,6 +473,7 @@ async def speak(request: SpeakRequest):
             voice_file,
             active_id,
             active_name,
+            speed,
         )
         return result
     except Exception as e:

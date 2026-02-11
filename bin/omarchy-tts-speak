@@ -7,6 +7,13 @@
 set -euo pipefail
 
 TTS_SERVER="http://127.0.0.1:5858"
+CONFIG_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/omarchy-local-tts/config.json"
+
+# Read speed from config (default 1.5)
+speed=1.5
+if [ -f "$CONFIG_FILE" ]; then
+    speed=$(python3 -c "import json; print(json.load(open('$CONFIG_FILE')).get('speed', 1.5))" 2>/dev/null || echo "1.5")
+fi
 
 # Get highlighted text via primary selection
 text=$(wl-paste -p 2>/dev/null || true)
@@ -22,4 +29,4 @@ json_text=$(printf '%s' "$text" | python3 -c 'import json,sys; print(json.dumps(
 # Send to TTS server
 curl -s -X POST "${TTS_SERVER}/speak" \
     -H "Content-Type: application/json" \
-    -d "{\"text\": $json_text}" >/dev/null 2>&1 &
+    -d "{\"text\": $json_text, \"speed\": $speed}" >/dev/null 2>&1 &
